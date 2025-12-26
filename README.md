@@ -1,5 +1,7 @@
 # The Auction Zoo
 
+[中文说明 / Chinese README](./README.zh.md)
+
 Whereas auction formats were once loosely adopted for (and constrained by) the technical limits of blockchains, we’re now starting to see more novel designs adapted especially for blockchains.
 This repository aims to help bridge the gap between auction theory and practice by showcasing Solidity auction implementations that demonstrate interesting theoretical properties or novel constructions.
 

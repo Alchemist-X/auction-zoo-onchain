@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auction Zoo Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__text">
+        <p class="eyebrow">Auction Zoo · Sealed-bid experiments</p>
+        <h1>Preview and storyboard the on-chain auction library.</h1>
+        <p class="lede">
+          Explore the three featured auctions in this repository, review their
+          timelines, and spin up sample cases that showcase how the commit,
+          reveal, and settlement flows fit together.
+        </p>
+        <div class="hero__actions">
+          <a class="button" href="../README.md">View repository guide</a>
+          <a class="button button--ghost" href="../test" target="_blank">Jump to Foundry tests</a>
+        </div>
+      </div>
+      <div class="hero__panel" id="heroSnapshot"></div>
+    </header>
+
+    <main>
+      <section class="panel-grid" id="featureGrid"></section>
+
+      <section class="layout">
+        <div class="layout__sidebar">
+          <div class="section-header">
+            <h2>Featured auctions</h2>
+            <p>Select an auction to view its guardrails and demo timeline.</p>
+          </div>
+          <div class="list" id="auctionList"></div>
+        </div>
+
+        <div class="layout__main">
+          <div class="section-header">
+            <h2 id="auctionTitle">Choose an auction</h2>
+            <p id="auctionSubtitle">Load the contract highlights and readiness checklist.</p>
+          </div>
+          <div class="card" id="auctionDetails"></div>
+          <div class="card" id="phaseBoard"></div>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <div class="section-header">
+          <div>
+            <h2>Create a demo case</h2>
+            <p>Combine repository features into a runnable storyboard.</p>
+          </div>
+          <span class="pill">Non-custodial, ETH-denominated</span>
+        </div>
+        <form id="caseForm" class="form-grid">
+          <label>
+            Auction style
+            <select name="auctionId" required></select>
+          </label>
+          <label>
+            NFT identifier
+            <input type="text" name="nftId" placeholder="#4921" required />
+          </label>
+          <label>
+            Reserve price (ETH)
+            <input type="number" name="reserve" min="0" step="0.01" value="1.25" required />
+          </label>
+          <label>
+            Collateral % of bid
+            <input type="number" name="collateral" min="0" max="200" step="5" value="150" required />
+          </label>
+          <label>
+            Commit window (minutes)
+            <input type="number" name="commit" min="5" step="5" value="30" required />
+          </label>
+          <label>
+            Reveal window (minutes)
+            <input type="number" name="reveal" min="5" step="5" value="30" required />
+          </label>
+          <label>
+            Finalization buffer (minutes)
+            <input type="number" name="finalize" min="5" step="5" value="10" required />
+          </label>
+          <label>
+            Expected bidders
+            <input type="number" name="bidders" min="2" step="1" value="3" required />
+          </label>
+          <label class="full">
+            Notes for the runbook
+            <textarea name="notes" rows="2" placeholder="Highlight the quirk you want to demo."></textarea>
+          </label>
+          <div class="full form-actions">
+            <button type="submit" class="button">Generate storyboard</button>
+            <button type="button" class="button button--ghost" id="seedCase">Load a sample case</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Storyboard queue</h2>
+            <p>Each case blends contract hooks, Foundry tests, and operational steps.</p>
+          </div>
+          <span class="pill pill--muted" id="caseCount">0 cases</span>
+        </div>
+        <div class="case-grid" id="caseGrid"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Built for rapid walkthroughs of the Auction Zoo experiments.</p>
+      <div class="footer__links">
+        <a href="../foundry.toml">Foundry config</a>
+        <a href="../getBalanceProof.js">Aztec balance proof helper</a>
+        <a href="../LICENSE">License</a>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

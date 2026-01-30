@@ -135,6 +135,27 @@ const sampleNotes = {
   aztec: "Demonstrate private commits from Aztec Connect and public settlement on L1.",
 };
 
+const gameTargets = {
+  overcollateralized: {
+    commit: 45,
+    reveal: 35,
+    finalize: 20,
+    tip: "Overcollateralized auctions live or die on commitment discipline.",
+  },
+  sneaky: {
+    commit: 30,
+    reveal: 50,
+    finalize: 20,
+    tip: "The sneaky design rewards heavy reveal scrutiny to spot leakage.",
+  },
+  aztec: {
+    commit: 40,
+    reveal: 30,
+    finalize: 30,
+    tip: "Cross-chain flows need balanced attention to bridge and settlement.",
+  },
+};
+
 const cases = [];
 
 const heroSnapshot = document.getElementById("heroSnapshot");
@@ -147,6 +168,31 @@ const caseForm = document.getElementById("caseForm");
 const caseGrid = document.getElementById("caseGrid");
 const caseCount = document.getElementById("caseCount");
 const seedButton = document.getElementById("seedCase");
+const gameForm = document.getElementById("gameForm");
+const gameAuctionSelect = document.getElementById("gameAuction");
+const roundCountInput = document.getElementById("roundCount");
+const allocationRemaining = document.getElementById("allocationRemaining");
+const gameResult = document.getElementById("gameResult");
+const gameScore = document.getElementById("gameScore");
+const gameLog = document.getElementById("gameLog");
+const randomStrategyButton = document.getElementById("randomStrategy");
+const startSeriesButton = document.getElementById("startSeries");
+const nextRoundButton = document.getElementById("nextRound");
+const roundStatus = document.getElementById("roundStatus");
+const participantForm = document.getElementById("participantForm");
+const participantList = document.getElementById("participantList");
+
+const allocationInputs = Array.from(document.querySelectorAll("[data-allocation]"));
+const allocationValueEls = {
+  commit: document.getElementById("commitValue"),
+  reveal: document.getElementById("revealValue"),
+  finalize: document.getElementById("finalizeValue"),
+};
+
+const gameHistory = [];
+const participants = [];
+let roundSeries = [];
+let currentRoundIndex = 0;
 
 function renderFeatureGrid() {
   const grid = document.getElementById("featureGrid");
@@ -260,6 +306,298 @@ function updateFormOptions(activeId) {
       (a) => `<option value="${a.id}" ${activeId === a.id ? "selected" : ""}>${a.name}</option>`
     )
     .join("");
+}
+
+function renderGameOptions(activeId) {
+  gameAuctionSelect.innerHTML = auctions
+    .map(
+      (a) => `<option value="${a.id}" ${activeId === a.id ? "selected" : ""}>${a.name}</option>`
+    )
+    .join("");
+}
+
+function getAllocationTotals() {
+  return allocationInputs.reduce((total, input) => total + Number(input.value), 0);
+}
+
+function updateAllocationDisplay() {
+  allocationInputs.forEach((input) => {
+    const key = input.dataset.allocation;
+    const output = allocationValueEls[key];
+    if (output) {
+      output.textContent = input.value;
+    }
+  });
+
+  const total = getAllocationTotals();
+  const remaining = 100 - total;
+  allocationRemaining.textContent =
+    remaining >= 0 ? `${remaining} points remaining` : `${Math.abs(remaining)} points over`;
+  allocationRemaining.classList.toggle("pill--danger", remaining < 0);
+}
+
+function scoreAllocation(target, allocation) {
+  const diff =
+    Math.abs(allocation.commit - target.commit) +
+    Math.abs(allocation.reveal - target.reveal) +
+    Math.abs(allocation.finalize - target.finalize);
+  return Math.max(0, 100 - diff);
+}
+
+function getAllocationValues() {
+  return allocationInputs.reduce((acc, input) => {
+    acc[input.dataset.allocation] = Number(input.value);
+    return acc;
+  }, {});
+}
+
+function renderRoundStatus() {
+  if (!roundSeries.length) {
+    roundStatus.textContent = "Round 1 of 1";
+    return;
+  }
+  roundStatus.textContent = `Round ${currentRoundIndex + 1} of ${roundSeries.length}`;
+}
+
+function updateGameLog(entry) {
+  gameHistory.unshift(entry);
+  if (gameHistory.length > 4) {
+    gameHistory.pop();
+  }
+
+  gameLog.innerHTML = gameHistory
+    .map(
+      (item) => `
+        <div class="game__log-item">
+          <span>${item.time}</span>
+          <strong>${item.auction}</strong>
+          <em>${item.score}</em>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function parseAllocationFromText(text) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  const numbers = lower.match(/\d+/g);
+  if (!numbers || numbers.length < 3) return null;
+  const [commit, reveal, finalize] = numbers.map(Number);
+  return { commit, reveal, finalize };
+}
+
+function buildStrategyAllocation(strategy) {
+  switch (strategy) {
+    case "commit-heavy":
+      return { commit: 55, reveal: 30, finalize: 15 };
+    case "reveal-heavy":
+      return { commit: 25, reveal: 55, finalize: 20 };
+    case "finalize-heavy":
+      return { commit: 25, reveal: 25, finalize: 50 };
+    case "random":
+      return randomAllocation();
+    default:
+      return { commit: 34, reveal: 33, finalize: 33 };
+  }
+}
+
+function randomAllocation() {
+  const first = Math.floor(Math.random() * 101);
+  const second = Math.floor(Math.random() * (101 - first));
+  const third = 100 - first - second;
+  return { commit: first, reveal: second, finalize: third };
+}
+
+function createRoundSeries() {
+  const count = Math.min(Math.max(Number(roundCountInput.value) || 1, 1), 6);
+  roundSeries = Array.from({ length: count }, () => {
+    const pick = auctions[Math.floor(Math.random() * auctions.length)];
+    return pick.id;
+  });
+  currentRoundIndex = 0;
+  renderRoundStatus();
+}
+
+function renderParticipants() {
+  if (!participantList) return;
+  if (!participants.length) {
+    participantList.innerHTML = `<p class="game__empty">No participants yet. Add humans or LLMs to play.</p>`;
+    return;
+  }
+
+  participantList.innerHTML = participants
+    .map(
+      (participant) => `
+        <div class="game__participant">
+          <div>
+            <strong>${participant.name}</strong>
+            <span>${participant.type.toUpperCase()}</span>
+          </div>
+          <p>Strategy: ${participant.strategyLabel}</p>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function handleParticipantSubmit(event) {
+  event.preventDefault();
+  const data = new FormData(participantForm);
+  const name = data.get("participantName").trim();
+  const type = data.get("participantType");
+  const strategy = data.get("participantStrategy");
+  const allocationText = data.get("participantAllocation");
+  if (!name) return;
+
+  const allocation = parseAllocationFromText(allocationText);
+  const allocationTotal = allocation
+    ? allocation.commit + allocation.reveal + allocation.finalize
+    : 0;
+  const validAllocation = allocation && allocationTotal === 100 ? allocation : null;
+  const strategyLabel = validAllocation ? "Custom allocation" : strategy.replace(/-/g, " ");
+  participants.push({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    name,
+    type,
+    strategy,
+    allocation: validAllocation,
+    strategyLabel,
+  });
+  participantForm.reset();
+  renderParticipants();
+}
+
+function handleGameSubmit(event) {
+  event.preventDefault();
+  const allocation = getAllocationValues();
+  const total = getAllocationTotals();
+  const auctionId = roundSeries[currentRoundIndex] || gameAuctionSelect.value;
+  const target = gameTargets[auctionId];
+
+  if (total !== 100) {
+    gameResult.innerHTML = `<p>Please allocate exactly 100 points to run the sprint.</p>`;
+    gameScore.textContent = "Allocation needed";
+    return;
+  }
+
+  const results = [
+    {
+      name: "You",
+      allocation,
+      score: scoreAllocation(target, allocation),
+    },
+    ...participants.map((participant) => {
+      const computedAllocation =
+        participant.allocation || buildStrategyAllocation(participant.strategy);
+      return {
+        name: participant.name,
+        allocation: computedAllocation,
+        score: scoreAllocation(target, computedAllocation),
+      };
+    }),
+  ];
+
+  const topScore = Math.max(...results.map((result) => result.score));
+  const leader = results.find((result) => result.score === topScore);
+  const outcome =
+    topScore >= 85 ? "Master strategist" : topScore >= 70 ? "Solid execution" : "Risky deployment";
+  const tip = `${target.tip} Ideal mix: ${target.commit}/${target.reveal}/${target.finalize}.`;
+
+  gameScore.textContent = `${leader.name} · ${topScore} / 100`;
+  renderRoundResults(results, {
+    outcome: `${leader.name} leads: ${outcome}`,
+    tip,
+    leaderAllocation: leader.allocation,
+    target,
+  });
+  updateGameLog({
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    auction: auctions.find((a) => a.id === auctionId).name,
+    score: `${leader.name} · ${topScore} pts`,
+  });
+}
+
+function renderRoundResults(results, summary) {
+  const { outcome, tip, leaderAllocation, target } = summary;
+  const leaderboard = results
+    .sort((a, b) => b.score - a.score)
+    .map(
+      (result, index) => `
+        <div class="game__leader-row">
+          <span>#${index + 1}</span>
+          <strong>${result.name}</strong>
+          <em>${result.score} pts</em>
+        </div>
+      `
+    )
+    .join("");
+
+  const detailRows = results
+    .map(
+      (result) => `
+        <div class="game__detail-row">
+          <strong>${result.name}</strong>
+          <span>${result.allocation.commit}/${result.allocation.reveal}/${result.allocation.finalize}</span>
+        </div>
+      `
+    )
+    .join("");
+
+  gameResult.innerHTML = `
+    <div class="game__summary">
+      <h4>${outcome}</h4>
+      <p>${tip}</p>
+      <div class="game__leaderboard">${leaderboard}</div>
+    </div>
+    <div class="game__metrics">
+      <div>
+        <span>Commit</span>
+        <strong>${leaderAllocation.commit} / ${target.commit}</strong>
+      </div>
+      <div>
+        <span>Reveal</span>
+        <strong>${leaderAllocation.reveal} / ${target.reveal}</strong>
+      </div>
+      <div>
+        <span>Finalize</span>
+        <strong>${leaderAllocation.finalize} / ${target.finalize}</strong>
+      </div>
+    </div>
+    <div class="game__details">
+      <h5>Allocations</h5>
+      ${detailRows}
+    </div>
+  `;
+}
+
+function randomizeAllocation() {
+  const allocation = randomAllocation();
+  allocationInputs.forEach((input) => {
+    input.value = allocation[input.dataset.allocation];
+  });
+  updateAllocationDisplay();
+}
+
+function startSeries() {
+  createRoundSeries();
+  gameScore.textContent = "Series ready";
+  gameResult.innerHTML = `<p>Series started. Submit round 1 allocations to begin.</p>`;
+}
+
+function advanceRound() {
+  if (!roundSeries.length) {
+    createRoundSeries();
+  }
+  if (currentRoundIndex < roundSeries.length - 1) {
+    currentRoundIndex += 1;
+    renderRoundStatus();
+    gameScore.textContent = `Round ${currentRoundIndex + 1}`;
+    gameResult.innerHTML = `<p>Round ${currentRoundIndex + 1} is ready. Submit allocations to play.</p>`;
+  } else {
+    gameScore.textContent = "Series complete";
+    gameResult.innerHTML = `<p>All rounds complete. Adjust allocations or start a new series.</p>`;
+  }
 }
 
 function upsertCase(newCase) {
@@ -382,10 +720,23 @@ function init() {
   renderAuctionList(auctions[0].id);
   renderAuctionDetails(auctions[0]);
   updateFormOptions(auctions[0].id);
+  renderGameOptions(auctions[0].id);
   renderCases();
+  renderParticipants();
+  createRoundSeries();
+  updateAllocationDisplay();
 
   caseForm.addEventListener("submit", handleCaseSubmit);
   seedButton.addEventListener("click", seedSampleCase);
+
+  allocationInputs.forEach((input) => {
+    input.addEventListener("input", updateAllocationDisplay);
+  });
+  gameForm.addEventListener("submit", handleGameSubmit);
+  randomStrategyButton.addEventListener("click", randomizeAllocation);
+  startSeriesButton.addEventListener("click", startSeries);
+  nextRoundButton.addEventListener("click", advanceRound);
+  participantForm.addEventListener("submit", handleParticipantSubmit);
 }
 
 init();

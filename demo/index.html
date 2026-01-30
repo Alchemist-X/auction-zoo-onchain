@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auction Zoo Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__text">
+        <p class="eyebrow">Auction Zoo · Sealed-bid experiments</p>
+        <h1>Preview and storyboard the on-chain auction library.</h1>
+        <p class="lede">
+          Explore the three featured auctions in this repository, review their
+          timelines, and spin up sample cases that showcase how the commit,
+          reveal, and settlement flows fit together.
+        </p>
+        <div class="hero__actions">
+          <a class="button" href="../README.md">View repository guide</a>
+          <a class="button button--ghost" href="../test" target="_blank">Jump to Foundry tests</a>
+        </div>
+      </div>
+      <div class="hero__panel" id="heroSnapshot"></div>
+    </header>
+
+    <main>
+      <section class="panel-grid" id="featureGrid"></section>
+
+      <section class="layout">
+        <div class="layout__sidebar">
+          <div class="section-header">
+            <h2>Featured auctions</h2>
+            <p>Select an auction to view its guardrails and demo timeline.</p>
+          </div>
+          <div class="list" id="auctionList"></div>
+        </div>
+
+        <div class="layout__main">
+          <div class="section-header">
+            <h2 id="auctionTitle">Choose an auction</h2>
+            <p id="auctionSubtitle">Load the contract highlights and readiness checklist.</p>
+          </div>
+          <div class="card" id="auctionDetails"></div>
+          <div class="card" id="phaseBoard"></div>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <div class="section-header">
+          <div>
+            <h2>Create a demo case</h2>
+            <p>Combine repository features into a runnable storyboard.</p>
+          </div>
+          <span class="pill">Non-custodial, ETH-denominated</span>
+        </div>
+        <form id="caseForm" class="form-grid">
+          <label>
+            Auction style
+            <select name="auctionId" required></select>
+          </label>
+          <label>
+            NFT identifier
+            <input type="text" name="nftId" placeholder="#4921" required />
+          </label>
+          <label>
+            Reserve price (ETH)
+            <input type="number" name="reserve" min="0" step="0.01" value="1.25" required />
+          </label>
+          <label>
+            Collateral % of bid
+            <input type="number" name="collateral" min="0" max="200" step="5" value="150" required />
+          </label>
+          <label>
+            Commit window (minutes)
+            <input type="number" name="commit" min="5" step="5" value="30" required />
+          </label>
+          <label>
+            Reveal window (minutes)
+            <input type="number" name="reveal" min="5" step="5" value="30" required />
+          </label>
+          <label>
+            Finalization buffer (minutes)
+            <input type="number" name="finalize" min="5" step="5" value="10" required />
+          </label>
+          <label>
+            Expected bidders
+            <input type="number" name="bidders" min="2" step="1" value="3" required />
+          </label>
+          <label class="full">
+            Notes for the runbook
+            <textarea name="notes" rows="2" placeholder="Highlight the quirk you want to demo."></textarea>
+          </label>
+          <div class="full form-actions">
+            <button type="submit" class="button">Generate storyboard</button>
+            <button type="button" class="button button--ghost" id="seedCase">Load a sample case</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel game" id="strategyGame">
+        <div class="section-header">
+          <div>
+            <h2>Auction Strategy Sprint</h2>
+            <p>Allocate 100 focus points across the auction phases over multiple rounds to match each design’s risk profile.</p>
+          </div>
+          <span class="pill">Multi-round game</span>
+        </div>
+        <div class="game-grid">
+          <form id="gameForm" class="card game__panel">
+            <div class="game__header">
+              <div>
+                <h3>Round setup</h3>
+                <p>Pick an auction, set the number of rounds, and spread your effort across commit, reveal, and finalize.</p>
+              </div>
+              <span class="pill pill--muted" id="roundDisplay">Round 1 / 3</span>
+            </div>
+            <label>
+              Auction to simulate
+              <select name="gameAuction" id="gameAuction" required></select>
+            </label>
+            <label>
+              Rounds per match
+              <input type="number" min="1" max="10" step="1" value="3" id="totalRounds" />
+            </label>
+            <div class="game__status">
+              <span class="pill pill--muted" id="allocationRemaining">100 points remaining</span>
+              <span class="pill pill--muted" id="matchStatus">Match not started</span>
+            </div>
+            <div class="game__slider">
+              <div>
+                <strong>Commit defense</strong>
+                <p>Protect sealed bids, hashes, and collateral inflow.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="40" data-allocation="commit" />
+                <span id="commitValue">40</span>
+              </div>
+            </div>
+            <div class="game__slider">
+              <div>
+                <strong>Reveal integrity</strong>
+                <p>Ensure honest reveals and stress test sequencing.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="40" data-allocation="reveal" />
+                <span id="revealValue">40</span>
+              </div>
+            </div>
+            <div class="game__slider">
+              <div>
+                <strong>Finalize resilience</strong>
+                <p>Focus on settlement and refund hygiene.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="20" data-allocation="finalize" />
+                <span id="finalizeValue">20</span>
+              </div>
+            </div>
+            <div class="game__actions">
+              <button type="submit" class="button">Run round</button>
+              <button type="button" class="button button--ghost" id="randomStrategy">Randomize strategy</button>
+              <button type="button" class="button button--ghost" id="resetMatch">Reset match</button>
+            </div>
+          </form>
+          <div class="card game__panel">
+            <div class="section-header">
+              <div>
+                <h3>Round outcome</h3>
+                <p>Score your allocation and compare with the ideal profile each round.</p>
+              </div>
+              <span class="pill pill--muted" id="gameScore">Awaiting play</span>
+            </div>
+            <div id="gameResult" class="game__result">
+              <p>Choose an auction and balance your points to launch the simulation.</p>
+            </div>
+            <div id="gameLog" class="game__log"></div>
+            <div class="game__leaderboard">
+              <h4>Leaderboard</h4>
+              <div id="gameBoard" class="game__table"></div>
+            </div>
+          </div>
+          <div class="card game__panel">
+            <div class="section-header">
+              <div>
+                <h3>Players & plan</h3>
+                <p>Invite AI participants or add bots, then track the development roadmap.</p>
+              </div>
+              <span class="pill pill--muted">Roadmap</span>
+            </div>
+            <div class="game__players">
+              <div class="section-header">
+                <h4>Participants</h4>
+                <span class="pill pill--muted" id="playerCount">1 player</span>
+              </div>
+              <div id="playerList" class="player-list"></div>
+              <form id="participantForm" class="player-form">
+                <label>
+                  Name
+                  <input type="text" id="participantName" placeholder="LLM Copilot" />
+                </label>
+                <label>
+                  Bot strategy
+                  <select id="participantStrategy">
+                    <option value="balanced">Balanced</option>
+                    <option value="commit">Commit-heavy</option>
+                    <option value="reveal">Reveal-heavy</option>
+                    <option value="finalize">Finalize-heavy</option>
+                  </select>
+                </label>
+                <label class="full">
+                  LLM strategy JSON
+                  <textarea
+                    id="participantJson"
+                    rows="4"
+                    placeholder='{"name":"LLM Alpha","rounds":[{"commit":45,"reveal":35,"finalize":20}]}'
+                  ></textarea>
+                </label>
+                <div class="game__actions">
+                  <button type="button" class="button" id="addBot">Add bot</button>
+                  <button type="button" class="button button--ghost" id="addLlm">Import LLM</button>
+                </div>
+                <p class="player-hint">
+                  Paste any LLM response that outputs JSON with commit/reveal/finalize allocations per round.
+                </p>
+              </form>
+            </div>
+            <ol id="gamePlan" class="plan-list"></ol>
+            <a class="game__doc-link" href="./GAME.md" target="_blank">查看游戏文档 / View docs</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Storyboard queue</h2>
+            <p>Each case blends contract hooks, Foundry tests, and operational steps.</p>
+          </div>
+          <span class="pill pill--muted" id="caseCount">0 cases</span>
+        </div>
+        <div class="case-grid" id="caseGrid"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Built for rapid walkthroughs of the Auction Zoo experiments.</p>
+      <div class="footer__links">
+        <a href="../foundry.toml">Foundry config</a>
+        <a href="../getBalanceProof.js">Aztec balance proof helper</a>
+        <a href="../LICENSE">License</a>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

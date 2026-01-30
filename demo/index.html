@@ -98,6 +98,151 @@
         </form>
       </section>
 
+      <section class="panel game" id="strategyGame">
+        <div class="section-header">
+          <div>
+            <h2>Auction Strategy Sprint</h2>
+            <p>Play a multi-round game: allocate 100 focus points per round and compare with each design’s risk profile.</p>
+          </div>
+          <span class="pill">Interactive game</span>
+        </div>
+        <div class="game-grid">
+          <form id="gameForm" class="card game__panel">
+            <div class="game__header">
+              <div>
+                <h3>Round setup</h3>
+                <p>Set the number of rounds, choose your auction focus, and spread effort across phases.</p>
+              </div>
+              <span class="pill pill--muted" id="allocationRemaining">100 points remaining</span>
+            </div>
+            <label>
+              Auction to simulate
+              <select name="gameAuction" id="gameAuction" required></select>
+            </label>
+            <label>
+              Number of rounds
+              <input type="number" name="roundCount" id="roundCount" min="2" max="6" value="3" required />
+            </label>
+            <div class="game__slider">
+              <div>
+                <strong>Commit defense</strong>
+                <p>Protect sealed bids, hashes, and collateral inflow.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="40" data-allocation="commit" />
+                <span id="commitValue">40</span>
+              </div>
+            </div>
+            <div class="game__slider">
+              <div>
+                <strong>Reveal integrity</strong>
+                <p>Ensure honest reveals and stress test sequencing.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="40" data-allocation="reveal" />
+                <span id="revealValue">40</span>
+              </div>
+            </div>
+            <div class="game__slider">
+              <div>
+                <strong>Finalize resilience</strong>
+                <p>Focus on settlement and refund hygiene.</p>
+              </div>
+              <div class="game__control">
+                <input type="range" min="0" max="100" value="20" data-allocation="finalize" />
+                <span id="finalizeValue">20</span>
+              </div>
+            </div>
+            <div class="game__actions">
+              <button type="submit" class="button">Submit round</button>
+              <button type="button" class="button button--ghost" id="randomStrategy">Randomize strategy</button>
+              <button type="button" class="button button--ghost" id="startSeries">Start series</button>
+            </div>
+          </form>
+          <div class="card game__panel">
+            <div class="section-header">
+              <div>
+                <h3>Round outcome</h3>
+                <p>Score every participant allocation and advance through multiple rounds.</p>
+              </div>
+              <span class="pill pill--muted" id="gameScore">Awaiting play</span>
+            </div>
+            <div id="gameResult" class="game__result">
+              <p>Choose an auction and balance your points to launch the simulation.</p>
+            </div>
+            <div class="game__footer">
+              <span class="pill pill--muted" id="roundStatus">Round 1 of 1</span>
+              <button type="button" class="button button--ghost" id="nextRound">Advance round</button>
+            </div>
+            <div id="gameLog" class="game__log"></div>
+          </div>
+          <div class="card game__panel">
+            <div class="section-header">
+              <div>
+                <h3>Participants</h3>
+                <p>Add human or LLM participants to play alongside you.</p>
+              </div>
+              <span class="pill pill--muted">Roster</span>
+            </div>
+            <form id="participantForm" class="game__participants">
+              <label>
+                Participant name
+                <input type="text" name="participantName" placeholder="e.g. LLM Analyst" required />
+              </label>
+              <label>
+                Participant type
+                <select name="participantType" required>
+                  <option value="human">Human</option>
+                  <option value="llm">LLM</option>
+                </select>
+              </label>
+              <label>
+                Strategy preset
+                <select name="participantStrategy" required>
+                  <option value="balanced">Balanced</option>
+                  <option value="commit-heavy">Commit-heavy</option>
+                  <option value="reveal-heavy">Reveal-heavy</option>
+                  <option value="finalize-heavy">Finalize-heavy</option>
+                  <option value="random">Random</option>
+                </select>
+              </label>
+              <label class="full">
+                LLM allocation (optional)
+                <textarea
+                  name="participantAllocation"
+                  rows="2"
+                  placeholder="Paste LLM output like: commit 40, reveal 35, finalize 25"
+                ></textarea>
+              </label>
+              <button type="submit" class="button">Add participant</button>
+            </form>
+            <div class="game__roster" id="participantList"></div>
+          </div>
+          <div class="card game__panel">
+            <div class="section-header">
+              <div>
+                <h3>游戏说明 / Game guide</h3>
+                <p>在游戏中先阅读中文说明，再查看英文说明。</p>
+              </div>
+              <span class="pill pill--muted">Docs</span>
+            </div>
+            <div class="game__docs">
+              <h4>中文说明</h4>
+              <p>
+                本游戏为多轮互动挑战。每轮分配 100 点资源到 Commit、Reveal、Finalize 三个阶段，
+                以贴合当前拍卖设计的风险重点。你可以添加 LLM 参与者，并粘贴它的分配结果或选择策略预设。
+              </p>
+              <h4>English guide</h4>
+              <p>
+                This is a multi-round interactive challenge. Allocate 100 points across Commit, Reveal,
+                and Finalize each round to match the auction’s risk profile. Add LLM participants and
+                paste their allocations or choose a strategy preset.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel">
         <div class="section-header">
           <div>

@@ -320,6 +320,190 @@ textarea {
   align-items: center;
 }
 
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.game__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.game__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.game__slider {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.game__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.game__control input[type="range"] {
+  flex: 1;
+}
+
+.game__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.game__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.game__result {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.game__summary h4 {
+  margin: 0 0 6px;
+}
+
+.game__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.game__metrics div {
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.game__leaderboard {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.game__leader-row,
+.game__detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.game__details h5 {
+  margin: 12px 0 6px;
+}
+
+.game__details span {
+  color: var(--text);
+}
+
+.game__metrics span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game__participants {
+  display: grid;
+  gap: 12px;
+}
+
+.game__roster {
+  display: grid;
+  gap: 10px;
+}
+
+.game__participant {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.game__participant div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game__participant span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game__empty {
+  color: var(--muted);
+  margin: 0;
+}
+
+.game__docs h4 {
+  margin: 0 0 6px;
+}
+
+.game__docs p {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+.game__log {
+  display: grid;
+  gap: 8px;
+}
+
+.game__log-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+
+.plan-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.plan-list strong {
+  color: var(--text);
+}
+
+.pill--danger {
+  border-color: rgba(245, 168, 198, 0.6);
+  color: var(--danger);
+}
+
 .full {
   grid-column: 1 / -1;
 }
@@ -435,5 +619,9 @@ textarea {
   .form-actions {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .game__slider {
+    grid-template-columns: 1fr;
   }
 }
